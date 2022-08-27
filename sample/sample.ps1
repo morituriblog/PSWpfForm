@@ -2,34 +2,26 @@
 
 Start-Dialog `
 -Controls @{
-    MainForm = [System.Windows.Forms.Form]@{
-        Text = "Main Form";
-        Height = 100;
+    MainWindow = [System.Windows.Window]@{
+        Title = "Hello WPF";
+        Height = 150;
         Width = 250;
     };
-    MainPanel = [System.Windows.Forms.FlowLayoutPanel]@{};
-    OkButton = [System.Windows.Forms.Button]@{
-        Text = "OK";
-    };
-    InputText = [System.Windows.Forms.TextBox]@{
-        Text = "Taro";
-    }
 } `
+-XAMLPaths @("MainPanel.xaml") `
 -EventMethods @{
     OkButton_Click = {
         $Methods.Hello()
     };
 } `
 -InitScript {
-    $Controls.MainForm.Controls.Add($Controls.MainPanel)
-    $Controls.MainPanel.Controls.Add($Controls.OkButton)
-    $Controls.MainPanel.Controls.Add($Controls.InputText)
-    $Controls.MainForm.ShowDialog()
+    $Controls.MainWindow.AddChild($Controls.MainPanel)
+    $Controls.MainWindow.ShowDialog()
 } `
 -Methods @{
     Hello = {
         $helloMessage = $Props.HelloFormat -f $Controls.InputText.Text
-        [System.Windows.Forms.MessageBox]::Show($helloMessage)
+        [System.Windows.MessageBox]::Show($helloMessage)
     };
 } `
 -Props @{

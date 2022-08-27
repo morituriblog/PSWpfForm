@@ -1,0 +1,5 @@
+<StackPanel Name="MainPanel" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+    <Label FontSize="20" Name="PromptLabel">Please Input:</Label>
+    <TextBox FontSize="20" Name="InputText">Taro</TextBox>
+    <Button FontSize="20" Name="OkButton">OK</Button>
+</StackPanel>
