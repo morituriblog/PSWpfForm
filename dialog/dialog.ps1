@@ -37,7 +37,9 @@ function Start-Dialog {
         [scriptblock]
         $InitScript,
         [hashtable]
-        $Methods
+        $Methods,
+        [hashtable]
+        $Props
     )
 
     $methodHashtable = $Methods

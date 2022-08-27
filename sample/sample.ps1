@@ -28,7 +28,10 @@ Start-Dialog `
 } `
 -Methods @{
     Hello = {
-        $inputName = $Controls.InputText.Text
-        [System.Windows.Forms.MessageBox]::Show("Hello, $inputName!")
+        $helloMessage = $Props.HelloFormat -f $Controls.InputText.Text
+        [System.Windows.Forms.MessageBox]::Show($helloMessage)
     };
+} `
+-Props @{
+    HelloFormat = "Hello, {0}!";
 }
