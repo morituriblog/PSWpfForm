@@ -4,20 +4,31 @@ Start-Dialog `
 -Controls @{
     MainForm = [System.Windows.Forms.Form]@{
         Text = "Main Form";
-        AutoSize = $true;
-        AutoSizeMode = [System.Windows.Forms.AutoSizeMode]::GrowAndShrink;
+        Height = 100;
+        Width = 250;
     };
+    MainPanel = [System.Windows.Forms.FlowLayoutPanel]@{};
     OkButton = [System.Windows.Forms.Button]@{
         Text = "OK";
-        Width = 400;
     };
+    InputText = [System.Windows.Forms.TextBox]@{
+        Text = "Taro";
+    }
 } `
 -EventMethods @{
     OkButton_Click = {
-        [System.Windows.Forms.MessageBox]::Show("OK Clicked!")
-    }
+        $Methods.Hello()
+    };
 } `
 -InitScript {
-    $Controls.MainForm.Controls.Add($Controls.OkButton)
+    $Controls.MainForm.Controls.Add($Controls.MainPanel)
+    $Controls.MainPanel.Controls.Add($Controls.OkButton)
+    $Controls.MainPanel.Controls.Add($Controls.InputText)
     $Controls.MainForm.ShowDialog()
+} `
+-Methods @{
+    Hello = {
+        $inputName = $Controls.InputText.Text
+        [System.Windows.Forms.MessageBox]::Show("Hello, $inputName!")
+    };
 }

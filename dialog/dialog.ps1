@@ -35,8 +35,16 @@ function Start-Dialog {
         $EventMethods,
         [Parameter(Mandatory=$true)]
         [scriptblock]
-        $InitScript
+        $InitScript,
+        [hashtable]
+        $Methods
     )
+
+    $methodHashtable = $Methods
+    $Methods = New-Object PSCustomObject
+    foreach ($methodName in $methodHashtable.Keys) {
+        $Methods | Add-Member -MemberType ScriptMethod -Name $methodName -Value $methodHashtable[$methodName]
+    }
 
     foreach ($eventName in $EventMethods.Keys) {
         AddEventMethods -ControlHashTable $Controls -EventName $eventName -EventScript $EventMethods[$eventName]
