@@ -12,6 +12,11 @@ Start-Dialog `
         Width = 400;
     };
 } `
+-EventMethods @{
+    OkButton_Click = {
+        [System.Windows.Forms.MessageBox]::Show("OK Clicked!")
+    }
+} `
 -InitScript {
     $Controls.MainForm.Controls.Add($Controls.OkButton)
     $Controls.MainForm.ShowDialog()
