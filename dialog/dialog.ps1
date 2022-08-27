@@ -1,4 +1,4 @@
-Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName PresentationFramework
 
 function AddEventMethods {
     param (
@@ -25,11 +25,36 @@ function AddEventMethods {
     Invoke-Expression -Command $command
 }
 
+function AddXamlControls {
+    param (
+        [Parameter(Mandatory=$true)]
+        [hashtable]
+        $ControlHashTable,
+        [Parameter(Mandatory=$true)]
+        [string]
+        $XamlPath
+    )
+
+    if (![System.IO.File]::Exists($XamlPath)) { return }
+
+    $xamlText = [System.IO.File]::ReadAllText($XamlPath, [System.Text.Encoding]::UTF8)
+    $controlValue = [System.Windows.Markup.XamlReader]::Parse($xamlText)
+
+    # Add Controls with name.
+    $xnavi = ([xml]$xamlText).CreateNavigator()
+    foreach ($node in $xnavi.Select("//@Name")) {
+        $xamlControlName = $node.Value
+        $ControlHashTable.Add($xamlControlName, $controlValue.FindName($xamlControlName))
+    }
+}
+
 function Start-Dialog {
     param (
         [Parameter(Mandatory=$true)]
         [hashtable]
         $Controls,
+        [array]
+        $XAMLPaths,
         [Parameter(Mandatory=$true)]
         [hashtable]
         $EventMethods,
@@ -41,6 +66,10 @@ function Start-Dialog {
         [hashtable]
         $Props
     )
+
+    foreach ($path in $XAMLPaths) {
+        AddXamlControls -ControlHashTable $Controls -XamlPath $path
+    }
 
     $methodHashtable = $Methods
     $Methods = New-Object PSCustomObject
