@@ -44,7 +44,7 @@ function AddXamlControls {
     $xnavi = ([xml]$xamlText).CreateNavigator()
     foreach ($node in $xnavi.Select("//@Name")) {
         $xamlControlName = $node.Value
-        $ControlHashTable.Add($xamlControlName, $controlValue.FindName($xamlControlName))
+        $ControlHashTable["$xamlControlName"] = $controlValue.FindName($xamlControlName)
     }
 }
 
