@@ -1,4 +1,4 @@
-. ..\dialog\dialog.ps1
+. ..\dialog.ps1
 
 Start-Dialog `
 -Controls @{
