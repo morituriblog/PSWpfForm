@@ -1,0 +1,1 @@
+powershell -Sta -ExecutionPolicy RemoteSigned -File simple.ps1
