@@ -1,4 +1,4 @@
-﻿. ..\..\dialog_core.ps1
+﻿. ..\..\dialog.ps1
 
 $controls = @{}
 Set-WpfControls -ControlHashTable $controls -XamlText @"
