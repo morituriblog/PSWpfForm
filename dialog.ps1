@@ -1,6 +1,6 @@
 Add-Type -AssemblyName PresentationFramework
 
-function AddEventMethods {
+function Set-EventMethods {
     param (
         [Parameter(Mandatory=$true)]
         [hashtable]
@@ -25,7 +25,7 @@ function AddEventMethods {
     Invoke-Expression -Command $command
 }
 
-function AddXamlControls {
+function Set-XamlControls {
     param (
         [Parameter(Mandatory=$true)]
         [hashtable]
@@ -68,7 +68,7 @@ function Start-Dialog {
     )
 
     foreach ($path in $XAMLPaths) {
-        AddXamlControls -ControlHashTable $Controls -XamlPath $path
+        Set-XamlControls -ControlHashTable $Controls -XamlPath $path
     }
 
     $methodHashtable = $Methods
@@ -78,7 +78,7 @@ function Start-Dialog {
     }
 
     foreach ($eventName in $EventMethods.Keys) {
-        AddEventMethods -ControlHashTable $Controls -EventName $eventName -EventScript $EventMethods[$eventName]
+        Set-EventMethods -ControlHashTable $Controls -EventName $eventName -EventScript $EventMethods[$eventName]
     }
 
     $InitScript.Invoke() | Out-Null
