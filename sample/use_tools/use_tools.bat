@@ -1,0 +1,1 @@
+powershell -Sta -ExecutionPolicy RemoteSigned -File use_tools.ps1
