@@ -1,28 +1,58 @@
 Add-Type -AssemblyName PresentationFramework
 
-function Set-EventMethods {
-    param (
+function Set-WpfControls {
+    param(
         [Parameter(Mandatory=$true)]
         [hashtable]
         $ControlHashTable,
         [Parameter(Mandatory=$true)]
         [string]
-        $EventName,
-        [Parameter(Mandatory=$true)]
-        [scriptblock]
-        $EventScript
+        $XamlText
     )
 
-    $controlAndEvent = $EventName -split "_"
-    if ($controlAndEvent.Length -ne 2) { return }
+    $wpfObj = [System.Windows.Markup.XamlReader]::Parse($XamlText)
 
-    $controlName = $controlAndEvent[0]
-    $EventName = $controlAndEvent[1]
-    
-    if (!$ControlHashTable.ContainsKey($controlName)) { return }
+    # Add Controls with name.
+    $xnavi = ([xml]$XamlText).CreateNavigator()
+    foreach ($node in $xnavi.Select("//@Name")) {
+        $name = $node.Value
+        $ControlHashTable["$name"] = $wpfObj.FindName($name)
+    }
+}
 
-    $command = '$ControlHashTable.' + $controlName + '.Add_' + $EventName + '({'+ $EventScript.ToString() +'})'
-    Invoke-Expression -Command $command
+function Set-MethodObject {
+    param(
+        [Parameter(Mandatory=$true)]
+        [PSCustomObject]
+        $MethodObject,
+        [Parameter(Mandatory=$true)]
+        [hashtable]
+        $MethodHashtable
+    )
+
+    foreach ($name in $methodHashtable.Keys) {
+        $MethodObject | Add-Member -MemberType ScriptMethod -Name $name -Value $methodHashtable[$name]
+    }
+}
+
+function Set-ControlEvent {
+    param(
+        [Parameter(Mandatory=$true)]
+        [hashtable]
+        $Controls,
+        [Parameter(Mandatory=$true)]
+        [hashtable]
+        $EventHashtable
+    )
+
+    foreach ($key in $EventHashtable.Keys) {
+        $controlAndEvent = $key -split "_"
+        $controlName = $controlAndEvent[0]
+        $eventName = $controlAndEvent[1]
+
+        $addEvent = Invoke-Expression -Command ('$Controls[$controlName].Add_' + $eventName)
+        $addEvent.Invoke($EventHashtable[$key])
+    }
 }
 
 function Set-XamlControls {
@@ -38,14 +68,8 @@ function Set-XamlControls {
     if (![System.IO.File]::Exists($XamlPath)) { return }
 
     $xamlText = [System.IO.File]::ReadAllText($XamlPath, [System.Text.Encoding]::UTF8)
-    $controlValue = [System.Windows.Markup.XamlReader]::Parse($xamlText)
 
-    # Add Controls with name.
-    $xnavi = ([xml]$xamlText).CreateNavigator()
-    foreach ($node in $xnavi.Select("//@Name")) {
-        $xamlControlName = $node.Value
-        $ControlHashTable["$xamlControlName"] = $controlValue.FindName($xamlControlName)
-    }
+    Set-WpfControls -ControlHashTable $ControlHashTable -XamlText $xamlText
 }
 
 function Start-Dialog {
@@ -73,13 +97,9 @@ function Start-Dialog {
 
     $methodHashtable = $Methods
     $Methods = New-Object PSCustomObject
-    foreach ($methodName in $methodHashtable.Keys) {
-        $Methods | Add-Member -MemberType ScriptMethod -Name $methodName -Value $methodHashtable[$methodName]
-    }
+    Set-MethodObject -MethodObject $Methods -MethodHashtable $methodHashtable
 
-    foreach ($eventName in $EventMethods.Keys) {
-        Set-EventMethods -ControlHashTable $Controls -EventName $eventName -EventScript $EventMethods[$eventName]
-    }
+    Set-ControlEvent -Controls $Controls -EventHashtable $EventMethods
 
     $InitScript.Invoke() | Out-Null
 
