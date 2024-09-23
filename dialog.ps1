@@ -95,9 +95,11 @@ function Start-Dialog {
         Set-XamlControls -ControlHashTable $Controls -XamlPath $path
     }
 
-    $methodHashtable = $Methods
-    $Methods = New-Object PSCustomObject
-    Set-MethodObject -MethodObject $Methods -MethodHashtable $methodHashtable
+    if ($Methods -ne $null) {
+        $methodHashtable = $Methods
+        $Methods = New-Object PSCustomObject
+        Set-MethodObject -MethodObject $Methods -MethodHashtable $methodHashtable
+    }
 
     Set-ControlEvent -Controls $Controls -EventHashtable $EventMethods
 
