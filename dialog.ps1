@@ -1,5 +1,28 @@
 Add-Type -AssemblyName PresentationFramework
 
+function Set-WpfControlsRecursive {
+    param(
+        [Parameter(Mandatory=$true)]
+        [hashtable]
+        $ControlHashTable,
+        [Parameter(Mandatory=$true)]
+        [System.Windows.DependencyObject]
+        $Root
+    )
+
+    if ($Root -is [System.Windows.FrameworkElement]) {
+        if (![string]::IsNullOrEmpty($Root.Name)) { $ControlHashTable[$Root.Name] = $Root }
+    }
+
+    $children = [System.Windows.LogicalTreeHelper]::GetChildren($Root)
+
+    foreach ($child in $children) {
+        if ($child -isnot [System.Windows.DependencyObject]) { continue }
+
+        Set-WpfControlsRecursive -ControlHashTable $ControlHashTable -Root $child
+    }
+}
+
 function Set-WpfControls {
     param(
         [Parameter(Mandatory=$true)]
@@ -12,12 +35,8 @@ function Set-WpfControls {
 
     $wpfObj = [System.Windows.Markup.XamlReader]::Parse($XamlText)
 
-    # Add Controls with name.
-    $xnavi = ([xml]$XamlText).CreateNavigator()
-    foreach ($node in $xnavi.Select("//@Name")) {
-        $name = $node.Value
-        $ControlHashTable["$name"] = $wpfObj.FindName($name)
-    }
+    # Add Controls recursively
+    Set-WpfControlsRecursive -ControlHashTable $ControlHashTable -Root $wpfObj
 }
 
 function Set-MethodObject {
